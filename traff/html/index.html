@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<script src="/media/jquery.js"></script>
+	<script src="/media/highcharts.js"></script> <!-- No need of internet now for using
+
+
+	HighCharts Library (Bug Resolved by MSH)-->
+	<!--<script src="http://code.highcharts.com/highcharts.js"></script>-->
+	<title>{% block title %}Traffic{% endblock %}</title>
+
+
+    <script type="text/javascript">
+		(function($){ // encapsulate jQuery
+
+		$(function () {
+    		var chart;
+    			$(document).ready(function() {
+       			chart = new Highcharts.Chart({
+            			chart: {
+                			renderTo: 'container',
+                			type: 'column',
+                			margin: [ 50, 50, 100, 80]
+            			},
+            			title: {
+                			text: 'Cuptured Traffic of '
+            			},
+            			xAxis: {
+                			categories: {{dayOfMonth}}
+                			,
+                			labels: {
+                    				rotation: -35,
+                    				align: 'right',
+                    				style: {
+                        				fontSize: '12px',
+                        				fontFamily: 'Verdana, sans-serif'
+                   	 			}
+                			}
+            			},
+            			yAxis: {
+                			min: 0,
+                			title: {
+             	       				text: 'Traffic in GB'
+                			}
+            			},
+            			legend: {
+                			enabled: false
+            			},
+            			tooltip: {
+                			formatter: function() {
+                    			return this.x+' Traffic for this day: '+ Highcharts.numberFormat(this.y, 1);
+                		}
+            		},
+                	series: [{
+                		name: 'Traffic',
+                		data: {{traffOfDay}},
+                		dataLabels: {
+                    			enabled: true,
+                    			rotation: -90,
+                    			color: '#FFFFFF',
+                    			align: 'right',
+                    			x: -1,
+                    			y: 10,
+                    			formatter: function() {
+                        			return this.y;
+                    			},
+                    			style: {
+                        			fontSize: '11px',
+                        			fontFamily: 'Verdana, sans-serif'
+                    			}
+                		}
+            		}]
+        		});
+    		});
+    		});
+		})(jQuery);
+	</script>
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+	$(function () {
+    var chart;
+    $(document).ready(function() {
+        chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'frequency_container',
+                type: 'area'
+                //type: 'column'
+            },
+            title: {
+                text: 'Frequency Distribution Chart'
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                labels: {
+                    formatter: function() {
+                        return this.value; // clean, unformatted number for year
+                    }
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Frequency Count'
+                },
+                labels: {
+                    formatter: function() {
+                        return this.value;
+                    }
+                }
+            },
+            tooltip: {
+                formatter: function() {
+                    return this.series.name +' frequency : <b>'+
+                        Highcharts.numberFormat(this.y, 0) +'</b>';
+                }
+            },
+            plotOptions: {
+                area: {
+                    pointStart: 1,
+                    marker: {
+                        enabled: false,
+                        symbol: 'circle',
+                        radius: 2,
+                        states: {
+                            hover: {
+                                enabled: true
+                            }
+                        }
+                    }
+                }
+            },
+            series: [ {
+                name: 'HDA',
+                data: [3,4,56]
+            }, {
+                name: 'TUD',
+                data: [3,5,6]
+            },{
+                name: 'MANDA',
+                data: [{{genData}} ]
+            }
+			]
+        });
+    });
+
+});
+
+</script>
+
+
+</head>
+<body>
+	<h1> Traffic Overview </h1>
+
+<form action="/" method="GET">
+	<select name="month">
+        <option>{{monthName}}</option>
+        {% for month in monthList %}
+          <option>{{month}}</option>
+        {% endfor %}
+    </select>
+	<input type="submit" value=" Show Month ">
+</form>
+
+	<div id="content">
+		<div id="container" style="min-width: 500px; height: 500px; margin: 0 auto"></div>
+
+	<!--	<div id="frequency_container" style="min-width: 500px; height: 500px; margin: 0 auto"></div> -->
+
+
+{% if last_days %}
+    <ul>
+    {% for poll in day_list %}
+        <li><a href="/{{ poll.id }}/">{{ poll }}</a></li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <p>Nothing are available. Test</p>
+{% endif %}
+</div>
+</body>
+</html>
+
+
+
+
+
