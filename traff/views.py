@@ -16,7 +16,6 @@ from traff.models import Day,DayTime
 
 def index(request):
     day_list = Day.objects.all()
-    daytime_list = DayTime.objects.all()
     template = loader.get_template('index.html')
 
     context = Context({"day_list" : day_list,})
@@ -30,26 +29,66 @@ def index(request):
 
     dayOfMonth=[]
     traffOfDay=[]
+    
+
+    def fillDataList():
+        dayOfMonth.append(d)
+        traffOfDay.insert(d,(round(float(day.dayTraffic)/(1024*1024*1024),2)))
+
     for day in day_list:
         d=day.date.day
         m=day.date.month
-        def fillDataList():
-            dayOfMonth.append(d)
-            traffOfDay.insert(d,(round(float(day.dayTraffic)/(1024*1024*1024),2)))
+        
         if 'month' in request.GET:
             if(calendar.month_name[m] == request.GET['month']):
                 fillDataList()
+                monthName=calendar.month_name[m]
+                lastDate=day
         elif calendar.month_name[m] == monthName:
             fillDataList()
-
+            lastDate=day
     dayOfMonth.sort(key=int)
-
 
 
     context['dayOfMonth'] = dayOfMonth
     context['monthName'] = monthName
     context['monthList'] = monthList
     context['traffOfDay'] = traffOfDay
+    
+
+    timeInterval=[]
+    timeValue=[]
+    def findTimeToDay():
+        for day in day_list:
+            if day.date == newDate:
+                break
+                
+        daytime_list = DayTime.objects.filter(day=day.id)
+        traffic=0
+        for time in daytime_list:
+            
+            if time.time.hour not in timeInterval:
+                timeInterval.append(time.time.hour)
+                timeValue.append(traffic)
+                traffic=0
+            else:
+                traffic += (round(float(time.traff)/(1024*1024),2)) 
+        
+
+
+    daylyView = 0
+    if 'daylyView' in request.GET:
+        requestDay = request.GET['daylyView']
+        if(day!=""):
+            daylyView = 1
+            newDate = lastDate.date.replace(day=int(float(requestDay)))
+            findTimeToDay()
+            
+    
+    context['daylyView'] = daylyView
+    context['timeInterval'] = timeInterval
+    context['timeValue'] = timeValue
+
 
     return HttpResponse(template.render(context))
 
@@ -81,12 +120,8 @@ def cuptureTraffic(request):
         for day in dayList:
             if day.date == d.date:
                 d = day
-                #print "Day: %s " % d
                 currentTraff = d.dayTraffic
-                #print "dayTraffic from DB: %s" % d.dayTraffic
                 d.dayTraffic = currentTraff+int(float(usage[1]))
-                #print "CurTraff: %s" %currentTraff
-                #print usage[1]
                 d.save()
                 flag=1
         if flag == 0:
