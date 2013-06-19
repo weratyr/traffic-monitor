@@ -51,9 +51,32 @@
                     			return '<a href="?month={{monthName}}&daylyView='+this.x+'">'+this.x+' Traffic for this day: '+ Highcharts.numberFormat(this.y, 1) +'</a>';
                 		}
             		},
+
+                     plotOptions: {
+                        series: {
+                            cursor: 'pointer',
+                            point: {
+                                events: {
+                                    click: function() {
+                                        //alert ('Category: '+ this.category +', value: '+ this.y);
+                                        location.href = '?month={{monthName}}&daylyView='+this.category;
+                                        e.preventDefault();
+                                    }
+                                }
+                            }
+                        }
+                    },
+                     
                 	series: [{
                 		name: 'Traffic',
                 		data: {{traffOfDay}},
+                       
+                        //events: {
+                            //click: function(e) {
+                              //  alert ('?month={{monthName}}&daylyView='+this.category);
+                            //location.href = '?month={{monthName}}&daylyView='+e.xAxis;
+                            //e.preventDefault();
+                         //}},
                 		dataLabels: {
                     			enabled: true,
                     			rotation: -90,
